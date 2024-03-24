@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-image: url("https://source.unsplash.com/3840x2160/?weather");
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            position: relative;
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-label {
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .weather-info {
+            margin-top: 20px;
+        }
+
+        .weather-info-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+
+        .weather-info-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .weather-info-value {
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="text-3xl font-bold mb-4">Weather App</h1>
+    <label for="city" class="input-label">Enter City:</label>
+    <input type="text" id="city" name="city" class="input-field"/>
+
+    <label for="units" class="input-label">Select Units:</label>
+    <select id="units" name="units" class="input-field">
+        <option value="metric">Celsius</option>
+        <option value="imperial">Fahrenheit</option>
+    </select>
+
+    <button onclick="getWeather()" class="btn mt-4">Get Weather</button>
+
+    <div id="result" class="weather-info mt-4"></div>
+
+    <div
+        id="spinner"
+        class="hidden border-t-4 border-b-4 border-blue-500 rounded-full w-12 h-12 animate-spin my-4 mx-auto"
+    ></div>
+
+    <div id="image-container"></div>
+    
+    <div id="time-container" class="mt-4"></div>
+</div>
+
+<script>
+    function getWeather() {
+        var city = document.getElementById("city").value;
+        var units = document.getElementById("units").value;
+
+        var url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=2c4fa57719c00cac191d09f7421187a1&units=${units}`;
+
+        document.getElementById("spinner").classList.remove("hidden");
+
+        fetch(url)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.cod === "404") {
+                    document.getElementById("result").innerHTML = "City not found!";
+                } else {
+                    var temperature = data.main.temp;
+                    var humidity = data.main.humidity;
+                    var wind_speed = data.wind.speed;
+
+                    var temperature_unit =
+                        units === "imperial" ? "Fahrenheit" : "Celsius";
+                    var wind_unit = units === "imperial" ? "miles/hour" : "meter/sec";
+
+                    var weatherCondition = data.weather[0].main.toLowerCase();
+
+                    var imageUrl;
+
+                    switch (weatherCondition) {
+                        case "sunny":
+                            imageUrl = "https://w7.pngwing.com/pngs/159/217/png-transparent-weather-sun-shine-sunny-icon.png";
+                            break;
+                        case "rain":
+                            imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNBXeDfHUAFXnWZNVF113tRfg3kyXI0HF1xw&usqp=CAU";
+                            break;
+                        case "clear":
+                            imageUrl = "https://clipart-library.com/images_k/transparent-weather/transparent-weather-11.jpg";
+                            break;
+                        case "thunderstorm":
+                            imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSm2KRdUmK9OP5VJq6N2y8hIlDkDOYKqXE1erxFmTKd1Jacun8veKcDmoLSaLMDUPMjnfk&usqp=CAU";
+                            break;
+                        case "clouds":
+                            imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAQRkiAfaKyvaM_DfBV3AcwWIgHaZJ_HDIY06MCo0X06yDRKQr2wHDuedtuNpTMD8wbaE&usqp=CAU";
+                            break;
+                        case "snow":
+                            imageUrl = "https://png.pngtree.com/png-clipart/20190516/original/pngtree-snow-vector-icon-png-image_3725323.jpg";
+                            break;
+                        case "mist":
+                            imageUrl = "https://www.pngfind.com/pngs/m/75-753375_free-weather-icon-fog-clipart-hd-png-download.png";
+                            break;
+                        case "fog":
+                            imageUrl = "https://www.pngfind.com/pngs/m/75-753375_free-weather-icon-fog-clipart-hd-png-download.png";
+                            break;
+                        case "haze":
+                            imageUrl = "https://www.pngfind.com/pngs/m/75-753375_free-weather-icon-fog-clipart-hd-png-download.png";
+                            break;
+                        default:
+                            imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAQRkiAfaKyvaM_DfBV3AcwWIgHaZJ_HDIY06MCo0X06yDRKQr2wHDuedtuNpTMD8wbaE&usqp=CAU";
+                            break;
+                    }
+
+                    // Display the image
+                    var imageContainer = document.getElementById("image-container");
+                    imageContainer.innerHTML = `<img src="${imageUrl}" alt="Weather Image" style="width: 100px; height: 100px; position: absolute; top: 10px; right: 10px; z-index: 1;" />`;
+
+                    document.getElementById("result").innerHTML = `
+                        <div class="weather-info-item">
+                            <span class="weather-info-label">Temperature:</span>
+                            <span class="weather-info-value">${temperature}°${temperature_unit}</span>
+                        </div>
+                        <div class="weather-info-item">
+                            <span class="weather-info-label">Humidity:</span>
+                            <span class="weather-info-value">${humidity}%</span>
+                        </div>
+                        <div class="weather-info-item">
+                            <span class="weather-info-label">Wind Speed:</span>
+                            <span class="weather-info-value">${wind_speed} ${wind_unit}</span>
+                        </div>`;
+
+                    // Display the time in Kenya
+                    var kenyaTime = new Date().toLocaleString("en-US", {timeZone: "Africa/Nairobi"});
+                    var timeContainer = document.getElementById("time-container");
+                    timeContainer.innerHTML = `<div class="weather-info-item">
+                            <span class="weather-info-label">Current Time in Kenya:</span>
+                            <span class="weather-info-value">${kenyaTime}</span>
+                        </div>`;
+                    
+                    document.getElementById("spinner").classList.add("hidden");
+                }
+
+                document.getElementById("spinner").classList.add("hidden");
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                document.getElementById("spinner").classList.add("hidden");
+            });
+    }
+</script>
+</body>
+</html>
